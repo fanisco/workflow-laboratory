@@ -1,5 +1,5 @@
 # Common workflow with a sequence of jobs
-name: CI
+name: Main CI
 
 # Controls when the workflow will run
 on:
@@ -12,14 +12,10 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 
-  # This workflow contains a single job called "build"
+  # This job versionates documentation websites
   versionate_docs:
     name: Versionate docs
-
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
@@ -42,7 +38,7 @@ jobs:
       # Setup root and bootstrap modules
       - name: Setup packages
         run: |
-          npm i
+          npm ci
           npx lerna bootstrap
 
       # Checks an commit log and builds docs with a specific version
@@ -65,7 +61,37 @@ jobs:
         uses: actions-js/push@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          message: 'chore: Update `versionsArchived.json` [skip ci]'
+          message: 'chore: Update `versionsArchive.json` [skip ci]'
           branch: ${{ steps.extract_branch.outputs.branch }}
           author_name: SberDevices Frontend Team
           author_email: sberdevices.frontend@gmail.com
+  
+  # This job calculates changes, releases packages and commits changes if needed
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    # Versionate must be ran before version increment 
+    needs: versionate_docs
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Git status
+      - name: Git status
+        run: git status
+
+  # Build current documentation
+  documentation:
+    name: Documentation build
+    runs-on: ubuntu-latest
+    # Documentation builds with incremented version
+    needs: publish
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Git log
+      - name: Git log
+        run: |
+          git log
+          cat ./website/plasma-ui-docs/versionsArchived.json
