@@ -1,5 +1,5 @@
 {
-    "packages": ["actions/*", "packages/*"],
+    "packages": ["actions/*", "packages/*", "website/*"],
     "version": "independent",
     "ignoreChanges": ["*.md"],
     "loglevel": "verbose",
