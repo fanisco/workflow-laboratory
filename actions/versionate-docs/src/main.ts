@@ -21,7 +21,8 @@ const getPullRequestCommitList = async (token: string) => {
 const getPushCommitList = async (token: string) => {
     const octokit = getOctokit(token);
     // const { owner, repo, number } = eventContext.issue;
-    console.log(eventContext, octokit); 
+    console.log(eventContext.payload.commits); 
+    console.log(octokit); 
 
     return [];
 };
