@@ -1,3 +1,4 @@
+import { associatedDocs } from './packages';
 import { compose } from './utils';
 
 const ccRegExp = /(\w+)(\(.*\))?:/;
@@ -39,6 +40,11 @@ export const removeTypes = (list: string[][]) => list.reduce((acc, [, ...names])
 export const removeCopies = (names: string[]) => Object.keys(names.reduce((acc, name) => ({ ...acc, [name]: 1 }), {}));
 
 /**
+ * @example ['plasma-ui'] => ['plasma-ui-docs']
+ */
+export const mapToAssociated = (names: string[]) => names.map((name) => associatedDocs[name]);
+
+/**
  * Из лога коммитов вытащит названия пакетов, для которых нужно выпустить версии документации.
  */
-export const getDocPackages = compose<string[]>(removeCopies, removeTypes, filterInfo, getCommitInfo);
+export const getDocPackages = compose<string[]>(mapToAssociated, removeCopies, removeTypes, filterInfo, getCommitInfo);
