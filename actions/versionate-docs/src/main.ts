@@ -18,13 +18,8 @@ const getPullRequestCommitList = async (token: string) => {
     });
     return commits.map(({ commit }) => commit.message);
 };
-const getPushCommitList = async (token: string) => {
-    const octokit = getOctokit(token);
-    // const { owner, repo, number } = eventContext.issue;
-    console.log(eventContext.payload.commits); 
-    console.log(octokit); 
-
-    return [];
+const getPushCommitList = async () => {
+    return eventContext.payload.commits.map((commit: { message: string }) => commit.message);
 };
 
 /**
@@ -36,7 +31,7 @@ const getCommitList = async (token: string) => {
     if (pullRequestEvents.includes(GITHUB_EVENT_NAME)) {
         return getPullRequestCommitList(token);
     } else {
-        return getPushCommitList(token);
+        return getPushCommitList();
     }
 };
 
