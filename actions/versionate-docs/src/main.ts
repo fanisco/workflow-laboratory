@@ -1,10 +1,12 @@
 import { getInput, setOutput, setFailed } from '@actions/core';
 import { context as eventContext, getOctokit } from '@actions/github';
+import { lstatSync } from 'fs';
 
 import { exec } from './exec';
+import { readFile, writeFile } from './fs';
 import { getDocPackages } from './commits';
 
-const { GITHUB_EVENT_NAME = ''/*, GITHUB_SHA = ''*/ } = process.env;
+const { GITHUB_EVENT_NAME = '' } = process.env;
 const pullRequestEvents = ['pull_request', 'pull_request_target'];
 
 const getPullRequestCommitList = async (token: string) => {
@@ -26,8 +28,6 @@ const getPushCommitList = async () => {
  * Из пуллреквеста или пуша вытащит лог коммитов.
  */
 const getCommitList = async (token: string) => {
-    console.log(GITHUB_EVENT_NAME);
-
     if (pullRequestEvents.includes(GITHUB_EVENT_NAME)) {
         return getPullRequestCommitList(token);
     } else {
@@ -62,16 +62,28 @@ const packageToDocumentation: Record<string, string> = {
     'plasma-temple': 'plasma-temple-docs',
 };
 
-const mapPackagesToDocumentation = (packages: Record<string, string>) =>
+const mapPackagesToDocumentation = (packages: Record<string, string>): Record<string, string> =>
     Object.entries(packages).reduce(
         (acc, [packageName, version]) => ({ ...acc, [packageToDocumentation[packageName]]: version }),
         {},
     );
 
-const buildDocumentation = async (packageName: string) => {
-    const { stdout, stderr } = await exec(`npm run build --prefix="./website/${packageName}"`);
+// const buildDocumentation = async (packageName: string) => {
+//     const { stdout, stderr } = await exec(`npm run build --prefix="./website/${packageName}"`);
 
-    console.log(packageName, stdout, stderr);
+//     console.log(packageName, stdout, stderr);
+// };
+
+const writeVersionsJson = async (packageName: string, version: string, url: string) => {
+    const path = `./website/${packageName}/versionsArchived.json`;
+    let json = {};
+
+    if (lstatSync(path).isFile()) {
+        const rawData = await readFile(path);
+        json = JSON.parse(rawData.toString());
+    }
+
+    writeFile(`./website/${packageName}/versionsArchived.json`, JSON.stringify({ ...json, [version]: url }));
 };
 
 /**
@@ -90,16 +102,15 @@ async function main() {
     console.log('--->>', docsAndVersions);
 
     if (Object.keys(docsAndVersions).length < 1) {
-        return setOutput('result', 'No packages to versionate docs.');
+        return setOutput('result', false);
     }
 
-    Object.entries(docsAndVersions).forEach(([packageName]) => {
-        buildDocumentation(packageName);
-    });
+    await Promise.all(Object.entries(docsAndVersions).map(async ([packageName, version]) => {
+        // await buildDocumentation(packageName);
+        await writeVersionsJson(packageName, version, `https://plasma.sberdevices.ru/${packageName}/${version}/`);
+    }));
 
-    const output = ['/build/ui/1.67.0', '/build/web/1.56.0'];
-
-    setOutput('result', output);
+    setOutput('result', true);
 }
 
 main().catch((err) => setFailed(err.message));

@@ -51,3 +51,21 @@ jobs:
         uses: ./actions/versionate-docs
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Branch name will be used in next commit
+      - name: Extract branch name
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      # Commit made changes
+      - name: Commit & Push changes
+        if: github.event_name != 'pull_request'
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          message: 'chore: Update `versionsArchived.json` [skip ci]'
+          branch: ${{ steps.extract_branch.outputs.branch }}
+          author_name: SberDevices Frontend Team
+          author_email: sberdevices.frontend@gmail.com
