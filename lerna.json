@@ -1,0 +1,8 @@
+{
+    "packages": ["actions/*"],
+    "version": "independent",
+    "ignoreChanges": ["*.md"],
+    "loglevel": "verbose",
+    "exact": true,
+    "ci": true
+}

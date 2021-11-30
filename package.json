@@ -1,11 +1,8 @@
 {
   "name": "workflow-laboratory",
-  "version": "0.0.1",
+  "private": true,
   "description": "Workflow Laboratory",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fanisco/workflow-laboratory.git"
@@ -15,5 +12,8 @@
   "bugs": {
     "url": "https://github.com/fanisco/workflow-laboratory/issues"
   },
-  "homepage": "https://github.com/fanisco/workflow-laboratory#readme"
+  "homepage": "https://github.com/fanisco/workflow-laboratory#readme",
+  "dependencies": {
+    "lerna": "^3.22.1"
+  }
 }
