@@ -64,7 +64,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: actions-js/push@master
         with:
-          github_token: ${{ secrets.GH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           message: 'chore: Update `versionsArchived.json` [skip ci]'
           branch: ${{ steps.extract_branch.outputs.branch }}
           author_name: SberDevices Frontend Team
