@@ -4,6 +4,9 @@ inputs:
   token:
     description: The GitHub token used to create an authenticated client.
     required: true
+outputs:
+  result:
+    description: Process done with success.
 runs:
   using: node12
   main: 'lib/main.js'
