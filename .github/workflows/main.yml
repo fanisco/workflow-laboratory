@@ -55,6 +55,10 @@ jobs:
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
 
+      # Show sha
+      - name: Show sha before
+        run: echo ${{ github.sha }}
+
       # Commit made changes
       - name: Commit & Push changes
         if: github.event_name != 'pull_request'
@@ -65,6 +69,17 @@ jobs:
           branch: ${{ steps.extract_branch.outputs.branch }}
           author_name: SberDevices Frontend Team
           author_email: sberdevices.frontend@gmail.com
+
+      # Show sha
+      - name: Show sha after
+        run: echo ${{ github.sha }}
+
+      # Upload versionsArchived.json
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: versions-archived-json
+          path: website/plasma-ui-docs/versionsArchived.json
   
   # This job calculates changes, releases packages and commits changes if needed
   publish:
@@ -89,8 +104,17 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+
+      # Download versionsArchived.json
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
         with:
-          fetch-depth: 0
+          name: versions-archived-json
+          path: website/plasma-ui-docs/versionsArchived.json
+
+      # Show sha
+      - name: Show sha
+        run: echo ${{ github.sha }}
 
       # Git log
       - name: Git log
